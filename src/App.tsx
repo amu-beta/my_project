@@ -642,19 +642,23 @@ function AllWorksSection({ onProjectSelect }: { onProjectSelect: (p: typeof PROJ
                 <span className="text-[10px] font-mono font-bold text-gray-300">({work.num})</span>
               </div>
               
-              <div className="relative h-[223.5px] w-[372.5px] rounded-[10px] overflow-hidden bg-gray-50 mb-8 group shadow-sm hover:shadow-xl transition-shadow duration-500">
-                <AnimatePresence mode="wait">
-                  <motion.img
-                    key={hoveredWork === work.id ? 'secondary' : 'primary'}
-                    src={hoveredWork === work.id ? work.secondaryImage : work.image}
-                    initial={{ opacity: 0, scale: 1.1 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.1 }}
-                    className="w-full h-full object-contain"
-                    referrerPolicy="no-referrer"
-                  />
-                </AnimatePresence>
+              <div className="relative h-[223.5px] w-full max-w-[372.5px] rounded-[10px] overflow-hidden bg-gray-50 mb-8 group shadow-sm hover:shadow-xl transition-shadow duration-500">
+                <img
+                  src={work.image}
+                  alt={work.title}
+                  className={`absolute inset-0 w-full h-full object-contain transition-all duration-200 ${
+                    hoveredWork === work.id ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+                  }`}
+                  referrerPolicy="no-referrer"
+                />
+                <img
+                  src={work.secondaryImage}
+                  alt={`${work.title} hover`}
+                  className={`absolute inset-0 w-full h-full object-contain transition-all duration-200 ${
+                    hoveredWork === work.id ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
+                  }`}
+                  referrerPolicy="no-referrer"
+                />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
               </div>
 
@@ -951,6 +955,7 @@ function ResumeSection() {
 function FeaturedSection({ onProjectSelect }: { onProjectSelect: (p: typeof PROJECT_LIST[0]) => void }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const reversedWorks = useMemo(() => [...FEATURED_WORKS].reverse(), [FEATURED_WORKS]);
+  const previewIndex = hoveredIndex ?? 0;
 
   return (
     <section id="work" className="relative bg-[#FDFCF9] pt-0 pb-32 overflow-hidden">
@@ -977,93 +982,84 @@ function FeaturedSection({ onProjectSelect }: { onProjectSelect: (p: typeof PROJ
                   key={work.id}
                   onClick={() => onProjectSelect(project)}
                   onMouseEnter={() => setHoveredIndex(i)}
-                onMouseLeave={() => setHoveredIndex(null)}
-                whileHover={{ 
-                  scale: 1.02, 
-                  y: -4,
-                  backgroundColor: "rgba(255, 255, 255, 1)"
-                }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                className={`group relative bg-[#FDFCF9] border-2 border-[#E9E4DB] rounded-[10px] px-8 py-4 flex items-center gap-8 w-full min-h-[100px] transition-all ${hoveredIndex !== null && hoveredIndex !== i ? 'opacity-40 grayscale-[0.5]' : 'opacity-100'}`}
-              >
-                <div className="w-20 h-20 flex items-center justify-center overflow-hidden shrink-0">
-                  <img src={work.logoUrl} alt={work.title} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <h3 className="text-2xl font-extrabold text-[#333] tracking-tight">
-                    {work.title}
-                  </h3>
-                  <p className="text-[#999] text-base font-medium tracking-wide">
-                    {work.subtitle}
-                  </p>
-                </div>
-              </motion.div>
+                  onMouseLeave={() => setHoveredIndex(null)}
+                  whileHover={{ 
+                    scale: 1.02, 
+                    y: -4,
+                    backgroundColor: "rgba(255, 255, 255, 1)"
+                  }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  className={`group relative bg-[#FDFCF9] border-2 border-[#E9E4DB] rounded-[10px] px-8 py-4 flex items-center gap-8 w-full min-h-[100px] transition-all ${hoveredIndex !== null && hoveredIndex !== i ? 'opacity-40 grayscale-[0.5]' : 'opacity-100'}`}
+                >
+                  <div className="w-20 h-20 flex items-center justify-center overflow-hidden shrink-0">
+                    <img src={work.logoUrl} alt={work.title} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <h3 className="text-2xl font-extrabold text-[#333] tracking-tight">
+                      {work.title}
+                    </h3>
+                    <p className="text-[#999] text-base font-medium tracking-wide">
+                      {work.subtitle}
+                    </p>
+                  </div>
+                </motion.div>
               );
             })}
           </div>
 
           {/* Right Side: Floating Previews */}
-          <div className="hidden lg:block relative h-[600px] w-full">
+          <div className="relative h-[420px] lg:h-[600px] w-full">
             <AnimatePresence mode="wait">
-              {hoveredIndex !== null && (
+              <motion.div
+                key={previewIndex}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 flex items-center justify-center"
+              >
+                {/* Background Image (Dashboard/Large) */}
                 <motion.div
-                  key={hoveredIndex}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute inset-0 flex items-center justify-center"
+                  initial={reversedWorks[previewIndex].layouts[0].initial}
+                  animate={reversedWorks[previewIndex].layouts[0].animate}
+                  transition={{ type: "spring", stiffness: 50, damping: 15 }}
+                  className="absolute z-10 w-[72%] max-w-[450px] h-[240px] lg:h-[320px] overflow-hidden"
                 >
-                  {/* Background Image (Dashboard/Large) */}
-                  <motion.div
-                    initial={reversedWorks[hoveredIndex].layouts[0].initial}
-                    animate={reversedWorks[hoveredIndex].layouts[0].animate}
-                    transition={{ type: "spring", stiffness: 50, damping: 15 }}
-                    className="absolute z-10 w-[450px] h-[320px] overflow-hidden"
-                  >
-                    <img 
-                      src={reversedWorks[hoveredIndex].previews[1]} 
-                      className="w-full h-full object-contain"
-                      referrerPolicy="no-referrer"
-                    />
-                  </motion.div>
-
-                  {/* Foreground Image 1 (Mobile) */}
-                  <motion.div
-                    initial={reversedWorks[hoveredIndex].layouts[1].initial}
-                    animate={reversedWorks[hoveredIndex].layouts[1].animate}
-                    transition={{ type: "spring", stiffness: 60, damping: 15, delay: 0.1 }}
-                    className="absolute z-30 w-[180px] h-[380px] overflow-hidden"
-                  >
-                    <img 
-                      src={reversedWorks[hoveredIndex].previews[0]} 
-                      className="w-full h-full object-contain"
-                      referrerPolicy="no-referrer"
-                    />
-                  </motion.div>
-
-                  {/* Foreground Image 2 (Secondary Mobile/Card) */}
-                  <motion.div
-                    initial={reversedWorks[hoveredIndex].layouts[2].initial}
-                    animate={reversedWorks[hoveredIndex].layouts[2].animate}
-                    transition={{ type: "spring", stiffness: 70, damping: 15, delay: 0.2 }}
-                    className="absolute z-20 w-[200px] h-[280px] overflow-hidden"
-                  >
-                    <img 
-                      src={reversedWorks[hoveredIndex].previews[2]} 
-                      className="w-full h-full object-contain"
-                      referrerPolicy="no-referrer"
-                    />
-                  </motion.div>
+                  <img 
+                    src={reversedWorks[previewIndex].previews[1]} 
+                    className="w-full h-full object-contain"
+                    referrerPolicy="no-referrer"
+                  />
                 </motion.div>
-              )}
-            </AnimatePresence>
 
-            {/* Default State or Placeholder */}
-            {hoveredIndex === null && (
-              <div className="absolute inset-0 flex items-center justify-center opacity-30">
-                <div className="w-[400px] h-[300px] bg-gray-100 rounded-[10px] animate-pulse" />
-              </div>
-            )}
+                {/* Foreground Image 1 (Mobile) */}
+                <motion.div
+                  initial={reversedWorks[previewIndex].layouts[1].initial}
+                  animate={reversedWorks[previewIndex].layouts[1].animate}
+                  transition={{ type: "spring", stiffness: 60, damping: 15, delay: 0.1 }}
+                  className="absolute z-30 w-[130px] lg:w-[180px] h-[280px] lg:h-[380px] overflow-hidden"
+                >
+                  <img 
+                    src={reversedWorks[previewIndex].previews[0]} 
+                    className="w-full h-full object-contain"
+                    referrerPolicy="no-referrer"
+                  />
+                </motion.div>
+
+                {/* Foreground Image 2 (Secondary Mobile/Card) */}
+                <motion.div
+                  initial={reversedWorks[previewIndex].layouts[2].initial}
+                  animate={reversedWorks[previewIndex].layouts[2].animate}
+                  transition={{ type: "spring", stiffness: 70, damping: 15, delay: 0.2 }}
+                  className="absolute z-20 w-[150px] lg:w-[200px] h-[220px] lg:h-[280px] overflow-hidden"
+                >
+                  <img 
+                    src={reversedWorks[previewIndex].previews[2]} 
+                    className="w-full h-full object-contain"
+                    referrerPolicy="no-referrer"
+                  />
+                </motion.div>
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
       </div>
@@ -1142,9 +1138,9 @@ function ProjectDetail({ project, onClose }: ProjectDetailProps) {
           {detailImages.map((img, idx) => (
             <motion.div
               key={idx}
-              initial={{ y: 40, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
+              initial={{ y: 24, opacity: 1 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.35, delay: Math.min(idx * 0.04, 0.2) }}
               className="w-full overflow-hidden"
             >
               <img 
@@ -1219,4 +1215,3 @@ function ImageCard({ image, progress, index }: ImageCardProps) {
     </motion.div>
   );
 }
-
