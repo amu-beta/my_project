@@ -646,7 +646,7 @@ function AllWorksSection({ onProjectSelect }: { onProjectSelect: (p: typeof PROJ
                 <img
                   src={work.image}
                   alt={work.title}
-                  className={`absolute inset-0 w-full h-full object-contain transition-all duration-200 ${
+                  className={`absolute inset-0 w-full h-full object-cover transition-all duration-200 ${
                     hoveredWork === work.id ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
                   }`}
                   referrerPolicy="no-referrer"
@@ -654,7 +654,7 @@ function AllWorksSection({ onProjectSelect }: { onProjectSelect: (p: typeof PROJ
                 <img
                   src={work.secondaryImage}
                   alt={`${work.title} hover`}
-                  className={`absolute inset-0 w-full h-full object-contain transition-all duration-200 ${
+                  className={`absolute inset-0 w-full h-full object-cover transition-all duration-200 ${
                     hoveredWork === work.id ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
                   }`}
                   referrerPolicy="no-referrer"
